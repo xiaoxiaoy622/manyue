@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'/>
+<meta http-equiv='Pragma' content='no-cache' />
+<meta http-equiv='Cache-Control' content='no-cache' />
+<meta name='renderer' content='webkit' />
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1' />
+<meta name='viewport' content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no'/>
+<meta name='full-screen' content='true' />
+<meta name='screen-orientation' content='portrait' />
+<meta name='laya' layajsprotect='true' logoimg='logo.png' logobkcolor='#000000' screenorientation='portrait' cacheid='fffffffff' />
+<title>鏈堟弧瑗挎ゼ</title>
+</head>
+<body style="margin:0;overflow:hidden;background-color:#000;">
+
+<script>
+// CDN 閰嶇疆锛氫紭鍏堜粠 CDN 鍔犺浇锛屽け璐ュ垯闄嶇骇鍒版湰鍦?// 缂撳瓨绛栫暐锛歭ocalStorage 缂撳瓨 7 澶╋紝杩囨湡鍚庤嚜鍔ㄩ噸鏂颁笅杞?var CDN_BASE = "https://res.xxh5.z7xz.com/xxh5dev/";
+var CDN_VERSION = "20260903";  // 鐗堟湰鍙凤紝淇敼姝ゅ€煎彲寮哄埗鍒锋柊缂撳瓨
+var cdn = "";  // 灏嗙敱涓嬮潰閫昏緫鍔ㄦ€佽缃?var CDN_TEST_IMG = "img/bg.jpg";
+var CDN_TEST_URL = CDN_BASE + CDN_TEST_IMG + '?v=' + CDN_VERSION;
+var USE_CDN = false;
+
+// 鎵嬪姩瑕嗙洊锛氳缃?USE_CDN_FORCE=true 寮哄埗浣跨敤 CDN锛孶SE_CDN_FORCE=false 寮哄埗浣跨敤鏈湴
+var USE_CDN_FORCE = null;  // null=鑷姩妫€娴? true=寮哄埗CDN, false=寮哄埗鏈湴
+
+// 棰勬娴?CDN 鏄惁鍙敤锛堝悓鏃舵鏌ョ紦瀛橈級
+(function() {
+    if (USE_CDN_FORCE !== null) {
+        USE_CDN = USE_CDN_FORCE;
+        cdn = USE_CDN ? CDN_BASE : "";
+        console.log('[CDN] 鎵嬪姩妯″紡: ' + (USE_CDN ? '浣跨敤CDN' : '浣跨敤鏈湴'));
+        return;
+    }
+
+    // 鍏堟鏌ョ紦瀛橈紙鍚?澶╄繃鏈熸鏌ワ級
+    try {
+        var cacheKey = 'moonbeam_cdn_' + CDN_TEST_IMG.replace(/[^a-zA-Z0-9._-]/g, '_');
+        var cachedData = localStorage.getItem(cacheKey);
+        var cachedVersion = localStorage.getItem('moonbeam_cdn_version');
+        var cachedTime = localStorage.getItem('moonbeam_cdn_timestamp');
+
+        if (cachedData && cachedVersion === CDN_VERSION) {
+            // 妫€鏌ユ槸鍚﹁繃鏈燂紙7澶╋級
+            if (cachedTime) {
+                var age = Date.now() - parseInt(cachedTime);
+                var ttl = 7 * 24 * 60 * 60 * 1000;
+                if (age > ttl) {
+                    // 宸茶繃鏈燂紝娓呴櫎缂撳瓨
+                    localStorage.removeItem(cacheKey);
+                    localStorage.removeItem('moonbeam_cdn_version');
+                    localStorage.removeItem('moonbeam_cdn_timestamp');
+                    console.log('[CDN] 缂撳瓨宸茶繃鏈?>7澶?锛岄噸鏂颁笅杞?);
+                } else {
+                    var remaining = Math.max(0, Math.floor((ttl - age) / (24 * 60 * 60 * 1000)));
+                    // 缂撳瓨鍛戒腑锛岀洿鎺ヤ娇鐢?                    USE_CDN = true;
+                    cdn = CDN_BASE;
+                    console.log('[CDN] 缂撳瓨鍛戒腑锛屼娇鐢ㄦ湰鍦扮紦瀛?(v' + CDN_VERSION + ', 鍓╀綑' + remaining + '澶?');
+                    return;
+                }
+            }
+        }
+    } catch (e) {
+        // 缂撳瓨璇诲彇澶辫触锛岀户缁娴?CDN
+    }
+
+    // 缂撳瓨鏈懡涓垨宸茶繃鏈燂紝妫€娴?CDN
+    var img = new Image();
+    var timeout = setTimeout(function() {
+        USE_CDN = false;
+        cdn = "";
+        console.log('[CDN] 瓒呮椂锛岄檷绾у埌鏈湴璧勬簮');
+    }, 3000);
+
+    img.onload = function() {
+        clearTimeout(timeout);
+        USE_CDN = true;
+        cdn = CDN_BASE;
+        console.log('[CDN] 妫€娴嬫垚鍔燂紝浣跨敤 CDN 鍔犺浇璧勬簮 (v' + CDN_VERSION + ')');
+    };
+    img.onerror = function() {
+        clearTimeout(timeout);
+        USE_CDN = false;
+        cdn = "";
+        console.log('[CDN] 妫€娴嬪け璐ワ紝闄嶇骇鍒版湰鍦拌祫婧?);
+    };
+    img.src = CDN_TEST_URL;
+})();
+
+// 璋冭瘯宸ュ叿锛氬湪鎺у埗鍙拌緭鍏?forceCdn(true/false) 鍙垏鎹㈡ā寮?window.forceCdn = function(enable) {
+    USE_CDN_FORCE = enable;
+    cdn = enable ? CDN_BASE : "";
+    console.log('[CDN] 宸插垏鎹㈠埌' + (enable ? 'CDN' : '鏈湴') + '妯″紡锛岃鍒锋柊椤甸潰鐢熸晥');
+};
+
+// 寮哄埗鍒锋柊缂撳瓨锛氬湪鎺у埗鍙拌緭鍏?refreshCache() 鍙己鍒朵娇鐢ㄦ渶鏂拌祫婧?window.refreshCache = function() {
+    CDN_VERSION = Date.now();
+    CDN_TEST_URL = CDN_BASE + CDN_TEST_IMG + '?v=' + CDN_VERSION;
+    console.log('[CDN] 缂撳瓨宸插埛鏂帮紝鐗堟湰鍙? ' + CDN_VERSION);
+    location.reload();
+};
+
+// 娓呴櫎鎵€鏈夌紦瀛?window.clearAllCache = function() {
+    CDNCache.clearCache();
+    console.log('[CDN] 鎵€鏈夌紦瀛樺凡娓呴櫎');
+};
+
+// 鏌ョ湅缂撳瓨鐘舵€?window.showCacheStatus = function() {
+    var stats = CDNCache.getCacheStats();
+    console.log('[CDN] 缂撳瓨鐘舵€?', stats);
+};
+// Debug: log errors to screen
+window.__errs = [];
+window.onerror = function (msg, url, line) {
+  window.__errs.push({ msg: msg, url: url, line: line });
+  var div = document.getElementById('__err') || (function(){
+    var d = document.createElement('div');
+    d.id = '__err';
+    d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(0,0,0,.85);color:#0f0;font:12px monospace;padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all;';
+    document.body.appendChild(d);
+    return d;
+  })();
+  div.innerHTML = msg + ' (' + url + ':' + line + ')' + '<br>' + div.innerHTML;
+  return true;
+};
+window.onunhandledrejection = function (e) {
+  window.onerror(e.reason && e.reason.message || String(e.reason), '', 0);
+};
+</script>
+
+<script src="cc.js" loader='laya'></script>
+<script src="cdn-cache.js"></script>
+<script src="cdn-version-patch.js"></script>
+<script src="cdn-cache-patch.js"></script>
+<script src="cdn-local-redirect.js"></script>
+<script src="skin.js"></script>
+<script src="enter.js" loader='laya'></script>
+<script src="moonbeam_accelerator.js"></script>
+
+</body>
+</html>
+
