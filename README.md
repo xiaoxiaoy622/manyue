@@ -122,7 +122,6 @@ moonbeam_speed/
 | JavaScript | 游戏逻辑 |
 | CSS3 | 样式与动画 |
 | localStorage | 浏览器缓存 |
-| PowerShell | 资源下载脚本 |
 
 
 ## 免责声明
