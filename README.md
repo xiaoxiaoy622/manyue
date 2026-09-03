@@ -32,7 +32,7 @@ moonbeam_speed/
 │   ├── x5_login.png              # 登录UI图集
 │   └── x5_login.json             # 图集元数据
 ├── DISCLAIMER.md                 # 免责声明
-└── README.md                     # 本文件
+└── README.md                     # 自述文件
 ```
 
 ---
